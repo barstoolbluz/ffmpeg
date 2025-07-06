@@ -1,0 +1,99 @@
+version = 1
+
+
+[install]
+# build deps
+pkg-config.pkg-path = "pkg-config"
+nasm.pkg-path = "nasm"
+yasm.pkg-path = "yasm"
+gnumake.pkg-path = "gnumake"
+autoconf.pkg-path = "autoconf"
+automake.pkg-path = "automake"
+libtool.pkg-path = "libtool"
+
+# system libs
+expat.pkg-path = "expat"
+bzip2.pkg-path = "bzip2"
+zlib.pkg-path = "zlib"
+xz.pkg-path = "xz"
+glib.pkg-path = "glib"
+pcre.pkg-path = "pcre"
+libxml2.pkg-path = "libxml2"
+numactl.pkg-path = "numactl"
+numactl.systems = ["x86_64-linux", "aarch64-linux"]
+
+# video codecs
+x264.pkg-path = "x264"
+x265.pkg-path = "x265"
+libvpx.pkg-path = "libvpx"
+libaom.pkg-path = "libaom"
+svt-av1.pkg-path = "svt-av1"
+
+# audio codecs
+lame.pkg-path = "lame"
+fdk_aac.pkg-path = "fdk_aac"
+libopus.pkg-path = "libopus"
+libvorbis.pkg-path = "libvorbis"
+soxr.pkg-path = "soxr"
+twolame.pkg-path = "twolame"
+
+# subtitle/text rendering
+libass.pkg-path = "libass"
+fontconfig.pkg-path = "fontconfig"
+freetype.pkg-path = "freetype"
+fribidi.pkg-path = "fribidi"
+harfbuzz.pkg-path = "harfbuzz"
+
+# media libs
+libbluray.pkg-path = "libbluray"
+libcdio.pkg-path = "libcdio"
+libcdio-paranoia.pkg-path = "libcdio-paranoia"
+libdvdnav.pkg-path = "libdvdnav"
+libdvdread.pkg-path = "libdvdread"
+
+
+[build.ffmpeg]
+description = "FFmpeg with full codec support"
+version = "7.1"
+sandbox = "pure"
+command = '''
+  set -euo pipefail
+  
+  ./configure \
+    --prefix="$out" \
+    --enable-gpl \
+    --enable-nonfree \
+    --enable-libx264 \
+    --enable-libx265 \
+    --enable-libvpx \
+    --enable-libmp3lame \
+    --enable-libfdk-aac \
+    --enable-libopus \
+    --enable-libvorbis \
+    --enable-libsoxr \
+    --enable-libtwolame \
+    --disable-libass \
+    --enable-libaom \
+    --enable-libsvtav1 \
+    --enable-encoder=dca \
+    --enable-libbluray \
+    --enable-libcdio \
+    --enable-libdvdnav \
+    --enable-libdvdread \
+    --pkg-config-flags="--static" \
+    --extra-cflags="-I$FLOX_ENV/include" \
+    --extra-ldflags="-L$FLOX_ENV/lib -Wl,-rpath,$FLOX_ENV/lib" \
+    --extra-libs="-lpthread -lm -lz"
+  
+  make -j$(nproc)
+  
+  make install
+  
+  # copy runtime deps to $out
+  mkdir -p "$out/lib"
+  for lib in libfdk-aac.so.2 libx264.so.164 libx265.so.199 libvpx.so.7 libmp3lame.so.0 libopus.so.0 libvorbis.so.0 libvorbisenc.so.2 libaom.so.3 libSvtAv1Enc.so.1 libbluray.so.2 libsoxr.so.0 libtwolame.so.0 libdvdnav.so.4 libdvdread.so.8; do
+    if [ -f "$FLOX_ENV/lib/$lib" ]; then
+      cp "$FLOX_ENV/lib/$lib" "$out/lib/" || true
+    fi
+  done
+'''
