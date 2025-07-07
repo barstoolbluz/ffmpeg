@@ -27,6 +27,13 @@
       "fribidi": {
         "pkg-path": "fribidi"
       },
+      "gcc": {
+        "pkg-path": "gcc",
+        "systems": [
+          "x86_64-linux",
+          "aarch64-linux"
+        ]
+      },
       "glib": {
         "pkg-path": "glib"
       },
@@ -118,11 +125,16 @@
     },
     "options": {},
     "build": {
-      "ffmpeg": {
-        "command": "  set -euo pipefail\n  \n  ./configure \\\n    --prefix=\"$out\" \\\n    --enable-gpl \\\n    --enable-nonfree \\\n    --enable-libx264 \\\n    --enable-libx265 \\\n    --enable-libvpx \\\n    --enable-libmp3lame \\\n    --enable-libfdk-aac \\\n    --enable-libopus \\\n    --enable-libvorbis \\\n    --enable-libsoxr \\\n    --enable-libtwolame \\\n    --disable-libass \\\n    --enable-libaom \\\n    --enable-libsvtav1 \\\n    --enable-encoder=dca \\\n    --enable-libbluray \\\n    --enable-libcdio \\\n    --enable-libdvdnav \\\n    --enable-libdvdread \\\n    --pkg-config-flags=\"--static\" \\\n    --extra-cflags=\"-I$FLOX_ENV/include\" \\\n    --extra-ldflags=\"-L$FLOX_ENV/lib -Wl,-rpath,$FLOX_ENV/lib\" \\\n    --extra-libs=\"-lpthread -lm -lz\"\n  \n  make -j$(nproc)\n  \n  make install\n  \n  # copy runtime deps to $out\n  mkdir -p \"$out/lib\"\n  for lib in libfdk-aac.so.2 libx264.so.164 libx265.so.199 libvpx.so.7 libmp3lame.so.0 libopus.so.0 libvorbis.so.0 libvorbisenc.so.2 libaom.so.3 libSvtAv1Enc.so.1 libbluray.so.2 libsoxr.so.0 libtwolame.so.0 libdvdnav.so.4 libdvdread.so.8; do\n    if [ -f \"$FLOX_ENV/lib/$lib\" ]; then\n      cp \"$FLOX_ENV/lib/$lib\" \"$out/lib/\" || true\n    fi\n  done\n",
+      "ffmpeg-darwin": {
+        "command": "  set -euo pipefail\n\n    CC=clang\n    CXX=clang++\n    export CC CXX\n\n  ./configure \\\n    --prefix=\"$out\" \\\n    --cc=clang \\\n    --cxx=clang++ \\\n    --enable-gpl \\\n    --enable-nonfree \\\n    --enable-libx264 \\\n    --enable-libx265 \\\n    --enable-libvpx \\\n    --enable-libmp3lame \\\n    --enable-libfdk-aac \\\n    --enable-libopus \\\n    --enable-libvorbis \\\n    --enable-libsoxr \\\n    --enable-libtwolame \\\n    --disable-libass \\\n    --disable-libaom \\\n    --disable-libsvtav1 \\\n    --disable-filter=fspp \\\n    --enable-encoder=dca \\\n    --enable-libbluray \\\n    --enable-libcdio \\\n    --enable-libdvdnav \\\n    --enable-libdvdread \\\n    --pkg-config-flags=\"--static\" \\\n    --extra-cflags=\"-I$FLOX_ENV/include -O2\" \\\n    --extra-ldflags=\"-L$FLOX_ENV/lib -Wl,-rpath,$FLOX_ENV/lib\" \\\n    --extra-libs=\"-lpthread -lm -lz\"\n\n  make -j2\n\n  make install\n\n  mkdir -p \"$out/lib\"\n\n  LIB_LIST=(\n    libfdk-aac.2.dylib\n    libx264.164.dylib\n    libx265.215.dylib\n    libvpx.dylib\n    libmp3lame.0.dylib\n    libopus.0.dylib\n    libvorbis.0.dylib\n    libvorbisenc.2.dylib\n    libaom.3.dylib\n    libSvtAv1Enc.3.dylib\n    libbluray.2.dylib\n    libsoxr.0.dylib\n    libtwolame.0.dylib\n  )\n\n  for lib in \"${LIB_LIST[@]}\"; do\n    if [ -f \"$FLOX_ENV/lib/$lib\" ]; then\n      cp \"$FLOX_ENV/lib/$lib\" \"$out/lib/\" || true\n    fi\n  done\n\n  mkdir -p \"$out/bin\"\n\n  if [ -f \"ffmpeg_g\" ]; then\n    cp \"ffmpeg_g\" \"$out/bin/ffmpeg\"\n    chmod +x \"$out/bin/ffmpeg\"\n  fi\n\n  \n  if [ -f \"ffprobe_g\" ]; then\n    cp \"ffprobe_g\" \"$out/bin/ffprobe\"\n    chmod +x \"$out/bin/ffprobe\"\n  fi\n",
+        "version": "7.1",
+        "description": "FFmpeg with rich support for audio codecs + containers"
+      },
+      "ffmpeg-linux": {
+        "command": "  set -euo pipefail\n\n  ./configure \\\n    --prefix=\"$out\" \\\n    --enable-gpl \\\n    --enable-nonfree \\\n    --enable-libx264 \\\n    --enable-libx265 \\\n    --enable-libvpx \\\n    --enable-libmp3lame \\\n    --enable-libfdk-aac \\\n    --enable-libopus \\\n    --enable-libvorbis \\\n    --enable-libsoxr \\\n    --enable-libtwolame \\\n    --disable-libass \\\n    --enable-libaom \\\n    --enable-libsvtav1 \\\n    --enable-encoder=dca \\\n    --enable-libbluray \\\n    --enable-libcdio \\\n    --enable-libdvdnav \\\n    --enable-libdvdread \\\n    --pkg-config-flags=\"--static\" \\\n    --extra-cflags=\"-I$FLOX_ENV/include\" \\\n    --extra-ldflags=\"-L$FLOX_ENV/lib -Wl,-rpath,$FLOX_ENV/lib\" \\\n    --extra-libs=\"-lpthread -lm -lz\"\n\n  make -j$(nproc)\n\n  make install\n\n    # copy runtime deps to $out\n  mkdir -p \"$out/lib\"\n  for lib in libfdk-aac.so.2 libx264.so.164 libx265.so.199 libvpx.so.7 libmp3lame.so.0 libopus.so.0 libvorbis.so.0 libvorbisenc.so.2 libaom.so.3 libSvtAv1Enc.so.1 libbluray.so.2 libsoxr.so.0 libtwolame.so.0 libdvdnav.so.4 libdvdread.so.8; do\n    if [ -f \"$FLOX_ENV/lib/$lib\" ]; then\n      cp \"$FLOX_ENV/lib/$lib\" \"$out/lib/\" || true\n    fi\n  done\n\n    mkdir -p \"$out/bin\"\n\n  if [ -f \"ffmpeg_g\" ]; then\n    cp \"ffmpeg_g\" \"$out/bin/ffmpeg\"\n    chmod +x \"$out/bin/ffmpeg\"\n  fi\n\n  if [ -f \"ffprobe_g\" ]; then\n    cp \"ffprobe_g\" \"$out/bin/ffprobe\"\n    chmod +x \"$out/bin/ffprobe\"\n  fi\n",
         "sandbox": "pure",
         "version": "7.1",
-        "description": "FFmpeg with full codec support"
+        "description": "FFmpeg with rich support for audio codecs + containers"
       }
     }
   },
@@ -1102,6 +1114,70 @@
         "dev": "/nix/store/vm09wnigvif3hr6zk9p1vbqwk1ar93rf-fribidi-1.0.16-dev",
         "devdoc": "/nix/store/3ngrl199c2i61pq3yg3rkz2x9312zlhn-fribidi-1.0.16-devdoc",
         "out": "/nix/store/yvj4rk5k1sr655nnjdccibvpn2q26gzx-fribidi-1.0.16"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gcc",
+      "broken": false,
+      "derivation": "/nix/store/jkvjq0f6z9c3xhxj1agzyyqsbxwjmwf0-gcc-wrapper-14.3.0.drv",
+      "description": "GNU Compiler Collection, version 14.3.0 (wrapper script)",
+      "install_id": "gcc",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=5c724ed1388e53cc231ed98330a60eb2f7be4be3",
+      "name": "gcc-wrapper-14.3.0",
+      "pname": "gcc",
+      "rev": "5c724ed1388e53cc231ed98330a60eb2f7be4be3",
+      "rev_count": 824861,
+      "rev_date": "2025-07-04T13:52:00Z",
+      "scrape_date": "2025-07-06T05:35:13.211803Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "14.3.0",
+      "outputs_to_install": [
+        "man",
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/hzbypijngrral6avxr8gypkkzfj49dbb-gcc-wrapper-14.3.0-info",
+        "man": "/nix/store/ppydldr7kc9m7nqlykmvfxcx5qjwb3n7-gcc-wrapper-14.3.0-man",
+        "out": "/nix/store/290idwd3a9c2lyi5mzixyn5qrxmzihzn-gcc-wrapper-14.3.0"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gcc",
+      "broken": false,
+      "derivation": "/nix/store/wz71r3fbdzxicz9zsc67nih3c452jgy9-gcc-wrapper-14.3.0.drv",
+      "description": "GNU Compiler Collection, version 14.3.0 (wrapper script)",
+      "install_id": "gcc",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=5c724ed1388e53cc231ed98330a60eb2f7be4be3",
+      "name": "gcc-wrapper-14.3.0",
+      "pname": "gcc",
+      "rev": "5c724ed1388e53cc231ed98330a60eb2f7be4be3",
+      "rev_count": 824861,
+      "rev_date": "2025-07-04T13:52:00Z",
+      "scrape_date": "2025-07-06T06:16:42.508538Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "14.3.0",
+      "outputs_to_install": [
+        "man",
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/7i5d2jdwgvj7i97r6jpqclds48m6pvjm-gcc-wrapper-14.3.0-info",
+        "man": "/nix/store/rjcbyaw5i75grgh6ifkbc2ggzx8v7vsi-gcc-wrapper-14.3.0-man",
+        "out": "/nix/store/pbqah1qk4b5y14fqinr1h8zvhqy71v81-gcc-wrapper-14.3.0"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
