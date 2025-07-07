@@ -11,6 +11,10 @@ autoconf.pkg-path = "autoconf"
 automake.pkg-path = "automake"
 libtool.pkg-path = "libtool"
 
+# linux-specific compilers + deps
+gcc.pkg-path = "gcc"
+gcc.systems = ["x86_64-linux", "aarch64-linux"]
+
 # system libs
 expat.pkg-path = "expat"
 bzip2.pkg-path = "bzip2"
@@ -52,13 +56,13 @@ libdvdnav.pkg-path = "libdvdnav"
 libdvdread.pkg-path = "libdvdread"
 
 
-[build.ffmpeg]
-description = "FFmpeg with full codec support"
+[build.ffmpeg-linux]
+description = "FFmpeg with rich support for audio codecs + containers"
 version = "7.1"
 sandbox = "pure"
 command = '''
   set -euo pipefail
-  
+
   ./configure \
     --prefix="$out" \
     --enable-gpl \
@@ -84,16 +88,109 @@ command = '''
     --extra-cflags="-I$FLOX_ENV/include" \
     --extra-ldflags="-L$FLOX_ENV/lib -Wl,-rpath,$FLOX_ENV/lib" \
     --extra-libs="-lpthread -lm -lz"
-  
+
   make -j$(nproc)
-  
+
   make install
-  
-  # copy runtime deps to $out
+
+    # copy runtime deps to $out
   mkdir -p "$out/lib"
   for lib in libfdk-aac.so.2 libx264.so.164 libx265.so.199 libvpx.so.7 libmp3lame.so.0 libopus.so.0 libvorbis.so.0 libvorbisenc.so.2 libaom.so.3 libSvtAv1Enc.so.1 libbluray.so.2 libsoxr.so.0 libtwolame.so.0 libdvdnav.so.4 libdvdread.so.8; do
     if [ -f "$FLOX_ENV/lib/$lib" ]; then
       cp "$FLOX_ENV/lib/$lib" "$out/lib/" || true
     fi
   done
+
+    mkdir -p "$out/bin"
+
+  if [ -f "ffmpeg_g" ]; then
+    cp "ffmpeg_g" "$out/bin/ffmpeg"
+    chmod +x "$out/bin/ffmpeg"
+  fi
+
+  if [ -f "ffprobe_g" ]; then
+    cp "ffprobe_g" "$out/bin/ffprobe"
+    chmod +x "$out/bin/ffprobe"
+  fi
+'''
+
+[build.ffmpeg-darwin]
+description = "FFmpeg with rich support for audio codecs + containers"
+version = "7.1"
+command = '''
+  set -euo pipefail
+
+    CC=clang
+    CXX=clang++
+    export CC CXX
+
+  ./configure \
+    --prefix="$out" \
+    --cc=clang \
+    --cxx=clang++ \
+    --enable-gpl \
+    --enable-nonfree \
+    --enable-libx264 \
+    --enable-libx265 \
+    --enable-libvpx \
+    --enable-libmp3lame \
+    --enable-libfdk-aac \
+    --enable-libopus \
+    --enable-libvorbis \
+    --enable-libsoxr \
+    --enable-libtwolame \
+    --disable-libass \
+    --disable-libaom \
+    --disable-libsvtav1 \
+    --disable-filter=fspp \
+    --enable-encoder=dca \
+    --enable-libbluray \
+    --enable-libcdio \
+    --enable-libdvdnav \
+    --enable-libdvdread \
+    --pkg-config-flags="--static" \
+    --extra-cflags="-I$FLOX_ENV/include -O2" \
+    --extra-ldflags="-L$FLOX_ENV/lib -Wl,-rpath,$FLOX_ENV/lib" \
+    --extra-libs="-lpthread -lm -lz"
+
+  make -j2
+
+  make install
+
+  mkdir -p "$out/lib"
+
+  LIB_LIST=(
+    libfdk-aac.2.dylib
+    libx264.164.dylib
+    libx265.215.dylib
+    libvpx.dylib
+    libmp3lame.0.dylib
+    libopus.0.dylib
+    libvorbis.0.dylib
+    libvorbisenc.2.dylib
+    libaom.3.dylib
+    libSvtAv1Enc.3.dylib
+    libbluray.2.dylib
+    libsoxr.0.dylib
+    libtwolame.0.dylib
+  )
+
+  for lib in "${LIB_LIST[@]}"; do
+    if [ -f "$FLOX_ENV/lib/$lib" ]; then
+      cp "$FLOX_ENV/lib/$lib" "$out/lib/" || true
+    fi
+  done
+
+  mkdir -p "$out/bin"
+
+  if [ -f "ffmpeg_g" ]; then
+    cp "ffmpeg_g" "$out/bin/ffmpeg"
+    chmod +x "$out/bin/ffmpeg"
+  fi
+
+  
+  if [ -f "ffprobe_g" ]; then
+    cp "ffprobe_g" "$out/bin/ffprobe"
+    chmod +x "$out/bin/ffprobe"
+  fi
 '''
