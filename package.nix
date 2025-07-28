@@ -25,7 +25,6 @@
   libaom,
   svt-av1,
   lame,
-  fdk_aac,
   libopus,
   libvorbis,
   soxr,
@@ -70,7 +69,6 @@ stdenv.mkDerivation rec {
     
     # Licensing flags
     "--enable-gpl"
-    "--enable-nonfree"  # Required for fdk-aac
     "--enable-version3"
     
     # Build flags
@@ -104,7 +102,6 @@ stdenv.mkDerivation rec {
     "--enable-libaom"
     "--enable-libsvtav1"
     "--enable-libmp3lame"
-    "--enable-libfdk-aac"
     "--enable-libopus"
     "--enable-libvorbis"
     "--enable-libsoxr"
@@ -166,7 +163,6 @@ stdenv.mkDerivation rec {
     svt-av1
     # Audio codecs
     lame
-    fdk_aac
     libopus
     libvorbis
     soxr
@@ -215,12 +211,12 @@ stdenv.mkDerivation rec {
     longDescription = ''
       Custom build of FFmpeg ${version} with extensive codec support including:
       - Video: H.264 (x264), H.265 (x265), VP8/VP9, AV1 (libaom, SVT-AV1)
-      - Audio: MP3 (LAME), AAC (FDK-AAC), Opus, Vorbis, TwoLAME
+      - Audio: MP3 (LAME), AAC (native), Opus, Vorbis, TwoLAME
       - Media: Blu-ray, DVD support
-      Built with GPL and non-free codecs enabled.
+      Built with GPL codecs enabled.
     '';
     homepage = "https://ffmpeg.org/";
-    license = licenses.unfree; # Due to fdk-aac
+    license = licenses.gpl3Plus;
     platforms = platforms.all;
     maintainers = [ ];
     mainProgram = "ffmpeg";
