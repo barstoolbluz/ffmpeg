@@ -1,0 +1,49 @@
+# Nix build results
+result
+result-*
+
+# Flox cache
+.flox/cache/
+.flox/run/
+
+# FFmpeg source files (we fetch these via Nix)
+/Changelog
+/compat/
+/configure
+/CONTRIBUTING.md
+/COPYING.GPLv2
+/COPYING.GPLv3
+/COPYING.LGPLv2.1
+/COPYING.LGPLv3
+/CREDITS
+/doc/
+/ffbuild/
+/fftools/
+/INSTALL.md
+/libavcodec/
+/libavdevice/
+/libavfilter/
+/libavformat/
+/libavutil/
+/libpostproc/
+/libswresample/
+/libswscale/
+/LICENSE.md
+/.mailmap
+/MAINTAINERS
+/Makefile
+/presets/
+/tests/
+/tools/
+/RELEASE
+/FUNDING.json
+/.gitattributes
+
+# Keep only our build configuration
+!.flox/
+!.gitignore
+!flake.nix
+!flake.lock
+!package.nix
+!README.md
+!FLOX.md

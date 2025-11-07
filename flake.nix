@@ -1,5 +1,5 @@
 {
-  description = "FFmpeg-full with unfree codecs enabled";
+  description = "FFmpeg with extensive audio/video codec support";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -15,31 +15,30 @@
             allowUnfree = true;
           };
         };
-        
-        ffmpeg-unfree = pkgs.ffmpeg-full.override {
-          withUnfree = true;
-        };
+
+        # Build using our custom Nix expression
+        ffmpeg-custom = pkgs.callPackage ./.flox/pkgs/ffmpeg-custom.nix { };
       in
       {
         packages = {
-          default = ffmpeg-unfree;
-          ffmpeg = ffmpeg-unfree;
-          ffmpeg-full-unfree = ffmpeg-unfree;
+          default = ffmpeg-custom;
+          ffmpeg = ffmpeg-custom;
+          ffmpeg-custom = ffmpeg-custom;
         };
-        
+
         # Also expose it as a legacy package for compatibility
         legacyPackages = {
-          ffmpeg = ffmpeg-unfree;
+          ffmpeg = ffmpeg-custom;
         };
-        
+
         apps.default = {
           type = "app";
-          program = "${ffmpeg-unfree}/bin/ffmpeg";
+          program = "${ffmpeg-custom}/bin/ffmpeg";
         };
-        
+
         # Provide an overlay so others can use this in their nixpkgs
         overlays.default = final: prev: {
-          ffmpeg-unfree = ffmpeg-unfree;
+          ffmpeg-custom = ffmpeg-custom;
         };
       });
 }

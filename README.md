@@ -1,46 +1,82 @@
-FFmpeg README
-=============
+# Custom FFmpeg Build
 
-FFmpeg is a collection of libraries and tools to process multimedia content
-such as audio, video, subtitles and related metadata.
+This repository contains build configurations for FFmpeg 7.1.2+ with extensive audio and video codec support.
 
-## Libraries
+## What's Included
 
-* `libavcodec` provides implementation of a wider range of codecs.
-* `libavformat` implements streaming protocols, container formats and basic I/O access.
-* `libavutil` includes hashers, decompressors and miscellaneous utility functions.
-* `libavfilter` provides means to alter decoded audio and video through a directed graph of connected filters.
-* `libavdevice` provides an abstraction to access capture and playback devices.
-* `libswresample` implements audio mixing and resampling routines.
-* `libswscale` implements color conversion and scaling routines.
+### Audio Codecs
+- **MP3** (LAME encoder)
+- **AAC** (native FFmpeg encoder)
+- **Opus** (modern, high-quality)
+- **Vorbis** (Ogg Vorbis)
+- **TwoLAME** (MPEG-1 Layer II)
+- **SoXR** (high-quality audio resampling)
 
-## Tools
+### Video Codecs
+- **H.264** (x264)
+- **H.265/HEVC** (x265)
+- **VP8/VP9** (libvpx)
+- **AV1** (libaom + SVT-AV1)
 
-* [ffmpeg](https://ffmpeg.org/ffmpeg.html) is a command line toolbox to
-  manipulate, convert and stream multimedia content.
-* [ffplay](https://ffmpeg.org/ffplay.html) is a minimalistic multimedia player.
-* [ffprobe](https://ffmpeg.org/ffprobe.html) is a simple analysis tool to inspect
-  multimedia content.
-* Additional small tools such as `aviocat`, `ismindex` and `qt-faststart`.
+### Media Container Support
+- Blu-ray (libbluray)
+- DVD (libdvdnav, libdvdread)
+- Audio CD (libcdio)
 
-## Documentation
+## Building with Nix/Flox
 
-The offline documentation is available in the **doc/** directory.
+This repo uses **Nix expressions** to build FFmpeg - the FFmpeg source code is **NOT** checked into this repo. Instead, builds automatically fetch the source from the upstream FFmpeg GitHub repo.
 
-The online documentation is available in the main [website](https://ffmpeg.org)
-and in the [wiki](https://trac.ffmpeg.org).
+### Using Nix Flakes
 
-### Examples
+```bash
+# Build with nix
+nix build
 
-Coding examples are available in the **doc/examples** directory.
+# Or build and run
+nix run . -- -version
+
+# Use in your own flake
+{
+  inputs.ffmpeg-custom.url = "github:barstoolbluz/ffmpeg";
+  # ...
+  ffmpeg-custom.packages.${system}.default
+}
+```
+
+### Using Flox
+
+```bash
+# Build the package
+flox build ffmpeg-custom
+
+# Run the built binary
+./result-ffmpeg-custom/bin/ffmpeg -version
+
+# Publish to Flox catalog (requires auth)
+flox auth login
+flox publish -o <your-org> ffmpeg-custom
+```
+
+## Build Configuration
+
+The build is defined in `.flox/pkgs/ffmpeg-custom.nix`. To update to a newer FFmpeg version:
+
+1. Edit `.flox/pkgs/ffmpeg-custom.nix`
+2. Update the `version = "X.Y.Z"` field
+3. Update the `sha256` hash (or set to empty string and let Nix tell you the correct hash)
+4. Rebuild: `flox build ffmpeg-custom` or `nix build`
+
+## Tracking Upstream
+
+This repo tracks the upstream FFmpeg project. To see what version is currently being built:
+
+```bash
+grep "version = " .flox/pkgs/ffmpeg-custom.nix
+```
+
+Upstream FFmpeg: https://github.com/FFmpeg/FFmpeg
 
 ## License
 
-FFmpeg codebase is mainly LGPL-licensed with optional components licensed under
-GPL. Please refer to the LICENSE file for detailed information.
-
-## Contributing
-
-Patches should be submitted to the ffmpeg-devel mailing list using
-`git format-patch` or `git send-email`. Github pull requests should be
-avoided because they are not part of our review process and will be ignored.
+FFmpeg is licensed under GPL v3+ (due to enabled GPL codecs). See upstream FFmpeg documentation for details.
