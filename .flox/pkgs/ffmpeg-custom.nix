@@ -7,7 +7,7 @@
 # Audio-focused FFmpeg: nixpkgs ffmpeg-full with video codecs/hardware accel disabled
 # Includes FDK-AAC (non-free), comprehensive audio codecs, album art support
 
-ffmpeg-full.override {
+(ffmpeg-full.override {
   # Core
   withGPL = true;
   withVersion3 = true;
@@ -142,4 +142,33 @@ ffmpeg-full.override {
   withMultithread = true;
   withDebug = false;
   withOptimisations = true;
-}
+}).overrideAttrs (oldAttrs: {
+  pname = "ffmpeg-audio-only";
+
+  meta = oldAttrs.meta // {
+    description = "Audio-focused FFmpeg build with comprehensive codec support and minimal video capabilities. Includes FDK-AAC (non-free), extensive audio codecs (MP3, Opus, Vorbis, FLAC, WavPack, etc.), physical media support (Blu-ray, DVD, CD audio extraction), and image formats for album art. Heavy video codecs and hardware acceleration disabled.";
+    longDescription = ''
+      FFmpeg ${oldAttrs.version} configured for audio processing workflows.
+
+      Audio Codecs: FDK-AAC (Fraunhofer), MP3 (LAME), Opus, Vorbis, Speex,
+      TwoLAME, GSM, iLBC, AMR-NB/WB, Codec2, Shine, CELT, plus built-in
+      FLAC/WavPack/AAC/AC3/DTS support.
+
+      Audio Processing: Rubberband, bs2b, LADSPA, Chromaprint, libmysofa,
+      SoXR resampling.
+
+      Tracker Formats: ModPlug, GME, OpenMPT for game/demoscene music.
+
+      Media Support: Blu-ray (libbluray), DVD (libdvdnav/read), CD audio
+      extraction (libcdio).
+
+      Image Formats: JPEG, PNG, WebP, JPEG XL, JPEG 2000 (for album art).
+
+      Video Support: Built-in lightweight codecs only (BMP, PNG, MJPEG).
+      Heavy external video libraries disabled (no x264, x265, vpx, AOM,
+      SVT-AV1, hardware acceleration).
+
+      Licensed under GPL v3+ (includes GPL and non-free codecs).
+    '';
+  };
+})
