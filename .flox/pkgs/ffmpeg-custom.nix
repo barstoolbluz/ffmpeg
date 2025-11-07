@@ -19,7 +19,7 @@
   withVorbis = true;
   withSpeex = true;
   withSoxr = true;          # High-quality resampling
-  withFdkAac = true;        # Fraunhofer AAC (non-free)
+  withFdkAac = true;
   withTwolame = true;
   withGsm = true;
   withIlbc = true;
