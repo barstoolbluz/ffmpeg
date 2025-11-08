@@ -60,8 +60,8 @@
   withXml2 = true;
 
   # Audio I/O
-  withAlsa = true;
-  withPulse = true;
+  withAlsa = pkgs.stdenv.isLinux;  # Linux-only
+  withPulse = pkgs.stdenv.isLinux; # PulseAudio is also Linux-only
   withJack = true;
   withOpenal = true;
 
