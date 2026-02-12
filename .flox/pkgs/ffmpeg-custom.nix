@@ -110,7 +110,8 @@
   withVulkan = false;
   withOpengl = false;
 
-  # DISABLE display
+  # DISABLE display/playback
+  buildFfplay = false;
   withSdl2 = false;
   withCaca = false;
   withXlib = false;
